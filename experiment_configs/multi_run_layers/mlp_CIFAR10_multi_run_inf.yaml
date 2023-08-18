@@ -1,0 +1,506 @@
+#### SEML and SLURM config
+
+seml:
+  executable: main.py
+  name: CIFAR10_mlp_TFC_global_noise_layer_repetition
+  output_dir: logs
+  project_root_dir: ../..
+
+slurm:
+  sbatch_options:
+    begin: now       # dummy parameter
+
+
+#### Experiment config
+
+fixed:
+  general:
+    num_epochs: 200
+  optimizer:
+    optimizer_type: Adam
+    lr_scheduler: CosineAnnealingLR
+    lr: 1e-3
+  data:
+    dataset: CIFAR10
+  model:
+    model_class: MLP
+    criterion: CrossEntropyLoss
+  noise_settings.layer_wise: None
+  noise_settings.default:
+      noise_type: GaussAdd
+      GaussMean: 0.0
+      enable_in_training: False
+
+grid:
+  general.repeat_number:
+    type: range
+    min: 0
+    max: 100
+    step: 1
+
+
+no_noise:
+  fixed:
+    noise_settings.default.noise_type: NoNoise
+  grid:
+    model.MLP.conf_name:
+      type: choice
+      options:
+        - RL_TFC
+        - RL_TFC-noBN
+
+global_repetition_BN:
+  fixed:
+    noise_settings.default.GaussStd: 0.333
+  grid:
+    model.MLP.conf_name:
+      type: choice
+      options:
+        - RL_TFC
+    model.MLP.repetition_config.global:
+      type: choice
+      options:
+        - 1
+        - 2
+        - 3
+        - 5
+        - 7
+        - 10
+        - 20
+
+global_repetition_noBN:
+  fixed:
+    noise_settings.default.GaussStd: 1.634
+  grid:
+    model.MLP.conf_name:
+      type: choice
+      options:
+        - RL_TFC-noBN
+    model.MLP.repetition_config.global:
+      type: choice
+      options:
+        - 1
+        - 2
+        - 3
+        - 5
+        - 7
+        - 10
+        - 20
+
+
+
+
+layer_repetition_with_BN_log10_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_log10_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,1,3,3,2,2,2,2,2,2,2,]
+        - [2,1,4,4,3,4,4,3,3,3,2,]
+        - [4,1,6,7,6,6,6,5,5,5,4,]
+        - [5,1,9,9,8,8,9,7,7,8,6,]
+        - [7,1,13,14,11,12,13,11,9,11,8,]
+        - [15,1,26,28,23,23,26,21,19,22,16,]
+
+layer_repetition_with_BN_sqrt_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_sqrt_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [2,1,2,3,2,2,2,2,2,2,2,]
+        - [3,1,4,4,3,3,3,3,3,3,3,]
+        - [5,1,6,6,5,6,6,5,5,5,5,]
+        - [7,1,8,8,8,8,8,7,7,8,7,]
+        - [10,2,11,12,11,11,11,11,10,11,10,]
+        - [19,3,23,23,22,22,23,22,21,22,20,]
+
+layer_repetition_with_BN_inverse_sqrt_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_inverse_sqrt_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,1,3,3,2,2,3,2,2,2,1,]
+        - [2,1,4,5,3,3,4,3,3,3,2,]
+        - [3,1,7,7,6,6,7,5,4,5,4,]
+        - [5,2,9,11,8,8,9,7,6,7,5,]
+        - [7,2,14,15,11,11,13,10,9,11,7,]
+        - [14,4,27,30,23,23,26,20,17,21,15,]
+
+layer_repetition_with_BN_inverse_lin_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_inverse_lin_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,1,3,4,2,2,3,2,1,2,1,]
+        - [1,1,5,6,3,3,5,3,2,3,1,]
+        - [2,1,8,10,6,6,8,4,3,5,2,]
+        - [3,1,11,14,8,8,11,6,5,7,3,]
+        - [4,1,16,20,11,12,15,9,7,10,5,]
+        - [8,1,32,40,23,24,31,18,14,20,9,]
+
+layer_repetition_with_BN_inverse_square_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_inverse_square_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,1,4,5,2,2,3,1,1,1,1,]
+        - [1,1,6,8,3,3,5,2,1,2,1,]
+        - [1,1,10,15,5,5,9,3,2,3,1,]
+        - [1,1,14,21,7,7,13,4,3,5,1,]
+        - [1,1,20,30,10,11,18,6,4,7,2,]
+        - [2,1,40,61,21,21,36,13,7,15,3,]
+
+layer_repetition_with_BN_inverse_log10_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_inverse_log10_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,1,1,1,5,5,1,2,1,3,1,]
+        - [1,1,1,1,8,9,1,4,2,4,1,]
+        - [2,1,1,1,15,16,1,6,3,7,2,]
+        - [3,1,1,1,21,22,1,8,5,11,3,]
+        - [4,2,1,1,30,32,1,12,7,15,5,]
+        - [8,3,1,1,61,66,1,25,14,31,9,]
+
+layer_repetition_with_BN_layer_sort_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_layer_sort_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,3,2,2,2,1,1,1,1,3,3,]
+        - [4,4,3,3,3,1,2,2,1,5,5,]
+        - [7,7,4,5,6,2,3,3,1,9,8,]
+        - [9,10,6,7,8,2,5,4,1,13,12,]
+        - [13,15,8,10,12,3,7,5,2,18,17,]
+        - [27,30,17,20,23,7,13,10,3,37,33,]
+
+layer_repetition_with_BN_layer_sort_inverse_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_layer_sort_inverse_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [2,2,1,1,1,1,1,1,1,7,4,]
+        - [3,4,2,2,2,1,1,1,1,11,5,]
+        - [4,6,3,3,4,2,2,2,2,18,9,]
+        - [6,9,4,4,5,3,3,3,2,25,13,]
+        - [9,12,5,6,7,4,5,4,3,37,18,]
+        - [18,24,10,12,15,7,9,8,7,73,37,]
+
+layer_repetition_with_BN_layer_sort_bins_of_two_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_layer_sort_bins_of_two_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,3,1,2,2,1,2,1,1,3,3,]
+        - [4,4,2,3,3,2,2,2,1,5,5,]
+        - [7,7,4,5,5,3,4,3,1,8,8,]
+        - [9,9,6,7,8,4,6,4,2,11,11,]
+        - [13,14,8,11,11,5,8,5,3,16,16,]
+        - [27,27,16,21,22,11,16,11,5,32,32,]
+
+layer_repetition_with_BN_layer_sort_bins_of_three_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_layer_sort_bins_of_three_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [2,3,2,2,2,1,1,2,1,3,3,]
+        - [4,5,2,3,3,1,2,2,1,5,5,]
+        - [6,7,4,6,6,2,4,4,2,7,7,]
+        - [8,10,5,8,8,3,5,5,3,11,11,]
+        - [11,15,8,11,11,4,8,8,4,15,15,]
+        - [23,30,15,23,23,8,15,15,8,30,30,]
+
+layer_repetition_with_BN_layer_sort_inverse_bins_of_two_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_layer_sort_inverse_bins_of_two_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [2,2,1,2,1,1,1,1,1,5,5,]
+        - [4,4,2,2,2,1,2,1,1,7,7,]
+        - [6,6,3,4,4,2,3,2,2,12,11,]
+        - [8,8,4,6,6,3,4,3,3,16,16,]
+        - [11,11,6,8,8,5,6,5,4,23,23,]
+        - [23,23,12,16,16,9,12,9,8,46,46,]
+
+layer_repetition_with_BN_layer_sort_inverse_bins_of_three_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC
+    general.experiment_name: layer_repetition_with_BN_layer_sort_inverse_bins_of_three_scaling
+    noise_settings.default.GaussStd: 0.333
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [2,3,1,2,2,1,1,1,1,4,4,]
+        - [3,5,2,3,3,1,2,2,1,6,5,]
+        - [5,9,3,5,5,2,3,3,2,9,9,]
+        - [7,13,4,6,7,3,4,4,3,13,13,]
+        - [9,18,6,9,9,5,6,6,5,19,18,]
+        - [19,37,12,18,18,9,12,12,9,37,37,]
+
+
+
+
+
+layer_repetition_no_BN_log10_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_log10_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,1,1,1,2,2,3,3,]
+        - [5,1,2,1,3,3,4,5,]
+        - [8,2,3,3,4,4,7,9,]
+        - [11,3,4,4,6,6,10,12,]
+        - [16,5,6,5,9,9,13,17,]
+        - [31,9,12,11,17,18,27,35,]
+
+layer_repetition_no_BN_sqrt_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_sqrt_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,1,1,1,2,2,3,3,]
+        - [4,1,2,2,3,3,4,5,]
+        - [7,2,3,3,5,5,7,8,]
+        - [10,3,5,4,7,7,9,11,]
+        - [15,4,6,6,10,10,13,16,]
+        - [30,9,13,11,19,20,27,31,]
+
+layer_repetition_no_BN_inverse_sqrt_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_inverse_sqrt_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,1,1,1,2,2,2,4,]
+        - [5,1,2,2,2,2,4,6,]
+        - [8,3,3,3,4,4,6,9,]
+        - [11,4,4,4,5,6,9,13,]
+        - [16,5,6,6,8,8,12,19,]
+        - [32,11,12,11,16,16,25,37,]
+
+layer_repetition_no_BN_inverse_lin_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_inverse_lin_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [4,1,1,1,1,1,2,5,]
+        - [6,1,1,1,1,2,4,8,]
+        - [10,1,2,1,3,3,6,14,]
+        - [14,1,2,2,4,4,9,20,]
+        - [20,2,3,3,5,5,13,29,]
+        - [41,5,6,5,10,11,25,57,]
+
+layer_repetition_no_BN_inverse_square_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_inverse_square_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,1,1,1,1,1,1,7,]
+        - [6,1,1,1,1,1,2,11,]
+        - [11,1,1,1,1,1,4,20,]
+        - [15,1,1,1,1,1,6,30,]
+        - [22,1,1,1,1,2,9,43,]
+        - [45,1,1,1,3,3,18,88,]
+
+layer_repetition_no_BN_inverse_log10_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_inverse_log10_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [3,1,1,1,2,2,2,4,]
+        - [5,2,2,2,2,2,3,6,]
+        - [8,3,3,3,4,4,5,10,]
+        - [11,4,4,4,5,5,8,15,]
+        - [16,6,6,6,7,7,11,21,]
+        - [31,11,12,12,15,15,22,42,]
+
+layer_repetition_no_BN_layer_sort_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_layer_sort_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,3,1,1,2,3,2,3,]
+        - [1,5,1,2,3,4,3,5,]
+        - [1,9,2,3,4,7,6,8,]
+        - [2,12,3,5,6,9,8,11,]
+        - [2,18,4,7,9,13,11,16,]
+        - [4,36,9,13,18,27,22,31,]
+
+layer_repetition_no_BN_layer_sort_inverse_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_layer_sort_inverse_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,6,1,1,1,2,1,3,]
+        - [1,9,1,2,2,3,2,4,]
+        - [2,15,2,2,3,5,4,7,]
+        - [3,21,3,3,4,7,5,10,]
+        - [4,29,4,5,6,10,7,15,]
+        - [7,59,8,10,12,20,15,29,]
+
+layer_repetition_no_BN_layer_sort_bins_of_two_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_layer_sort_bins_of_two_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,3,1,2,2,2,2,3,]
+        - [1,5,1,2,2,4,4,5,]
+        - [2,8,2,4,4,6,6,8,]
+        - [3,11,3,6,6,8,8,11,]
+        - [4,16,4,8,8,12,12,16,]
+        - [8,32,8,16,16,24,24,32,]
+
+layer_repetition_no_BN_layer_sort_bins_of_three_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_layer_sort_bins_of_three_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,3,1,2,2,3,2,2,]
+        - [2,4,1,3,3,4,3,4,]
+        - [2,7,2,5,5,7,5,7,]
+        - [3,10,3,7,6,10,7,10,]
+        - [5,14,5,9,9,14,10,14,]
+        - [10,28,9,19,19,28,19,28,]
+
+layer_repetition_no_BN_layer_sort_inverse_bins_of_two_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_layer_sort_inverse_bins_of_two_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,4,1,1,1,2,2,4,]
+        - [1,6,1,2,2,3,3,6,]
+        - [2,10,2,3,3,5,5,10,]
+        - [3,13,3,5,5,7,7,13,]
+        - [5,19,5,6,6,10,10,19,]
+        - [10,38,10,13,13,19,19,38,]
+
+layer_repetition_no_BN_layer_sort_inverse_bins_of_three_scaling:
+  fixed:
+    model.MLP.conf_name: RL_TFC-noBN
+    general.experiment_name: layer_repetition_no_BN_layer_sort_inverse_bins_of_three_scaling
+    noise_settings.default.GaussStd: 1.634
+    noise_settings.default.enable_in_training: False
+  grid:
+    model.MLP.repetition_config.layer_wise_mapped:
+      type: choice
+      options:
+        - [1,3,1,2,2,3,1,3,]
+        - [2,5,1,2,2,5,2,5,]
+        - [2,8,2,4,4,8,4,8,]
+        - [4,11,4,5,5,11,5,11,]
+        - [5,15,5,8,8,16,8,15,]
+        - [10,31,10,16,15,31,16,31,]
+
+
+

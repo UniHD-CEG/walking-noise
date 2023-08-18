@@ -1,0 +1,99 @@
+#### SEML and SLURM config
+
+seml:
+  executable: main.py
+  name: LeNet5_MAX_noise_BN_layer_wise_noise
+  output_dir: logs
+  project_root_dir: ../..
+
+slurm:
+  sbatch_options:
+    begin: now       # dummy parameter
+
+
+#### Experiment config
+
+fixed:
+  general:
+    num_epochs: 50
+  optimizer:
+    optimizer_type: Adam
+    lr_scheduler: CosineAnnealingLR
+    lr: 1e-3
+  data:
+    dataset: MNIST
+  model:
+    model_class: LeNet
+    criterion: CrossEntropyLoss
+    LeNet:
+      conf_name: LeNet5-BN
+  noise_settings.default.noise_type: NoNoise
+
+grid:
+  general.repeat_number:
+    type: range
+    min: 0
+    max: 6
+    step: 1
+  noise_settings.layer_wise:
+    layer_index:
+      type: range
+      min: 0
+      max: 16
+      step: 1
+    enable_in_training:
+      type: choice
+      options:
+        - 1
+
+gauss_combined:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussCombined
+      GaussMeanMul: 1.0
+      GaussMeanAdd: 0.0
+      StdAmplitude: 1e+10
+  grid:
+    noise_settings.layer_wise:
+      FirstMulThenAdd:
+        type: choice
+        options:
+          - True
+          - False
+      StdRatio:
+        type: choice
+        options:
+          - 0.001
+          - 0.003162278
+          - 0.01
+          - 0.03162278
+          - 0.1
+          - 0.25
+          - 0.5
+          - 0.75
+          - 0.9
+          - 0.93162278
+          - 0.968377223
+          - 0.99
+          - 0.993162278
+          - 0.9968377223
+          - 0.999
+          - 0.9993162278
+          - 0.99968377223
+          - 0.9999
+          - 0.99993162278
+          - 0.99999
+
+gauss_add:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussAdd
+      GaussMean: 0.0
+      GaussStd: 1e+10
+
+gauss_mul:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussMul
+      GaussMean: 1.0
+      GaussStd: 1e+10

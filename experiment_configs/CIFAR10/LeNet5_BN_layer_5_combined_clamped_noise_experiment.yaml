@@ -1,0 +1,126 @@
+#### SEML and SLURM config
+
+seml:
+  executable: main.py
+  name: CIFAR10_LeNet5_BN_layer_wise_noise
+  output_dir: logs
+  project_root_dir: ../..
+
+slurm:
+  sbatch_options_template: rivulet_gpu
+  experiments_per_job: 12
+  sbatch_options:
+    begin: now       # dummy parameter
+
+
+#### Experiment config
+
+fixed:
+  general:
+    num_epochs: 300
+  optimizer:
+    optimizer_type: Adam
+    lr_scheduler: CosineAnnealingLR
+    lr: 1e-3
+  data:
+    dataset: CIFAR10
+  model:
+    model_class: LeNet
+    criterion: CrossEntropyLoss
+    LeNet:
+      conf_name: LeNet5-BN
+  noise_settings.default.noise_type: NoNoise
+  noise_settings.layer_wise:
+    layer_index: 5
+    enable_in_training: 1
+
+grid:
+  general.repeat_number:
+    type: range
+    min: 0
+    max: 5
+    step: 1
+
+gauss_combined_clamped:
+  fixed:
+    general.weight_clamping:
+      min: -1
+      max: 1
+    noise_settings.layer_wise:
+      noise_type: GaussCombined
+      GaussMeanMul: 1.0
+      GaussMeanAdd: 0.0
+  grid:
+    noise_settings.layer_wise:
+      FirstMulThenAdd:
+        type: choice
+        options:
+          - True
+          - False
+      StdAmplitude:
+        type: loguniform
+        min: 1e-4
+        max: 1e+13
+        num: 35
+      StdRatio:
+        type: choice
+        options:
+          - 0.00000000000000001
+          - 0.0000000000000001
+          - 0.000000000000001
+          - 0.00000000000001
+          - 0.0000000000001
+          - 0.000000000001
+          - 0.00000000001
+          - 0.0000000001
+          - 0.000000001
+          - 0.00000001
+          - 0.0000001
+          - 0.000001
+          - 0.00001
+          - 0.0001
+          - 0.001
+          - 0.01
+          - 0.1
+          - 0.5
+          - 0.9
+          - 0.99
+          - 0.999
+          - 0.9999
+          - 0.99999
+          - 0.999999
+          - 0.9999999
+          - 0.99999999
+          - 0.999999999
+          - 0.9999999999
+          - 0.99999999999
+          - 0.999999999999
+          - 0.9999999999999
+          - 0.99999999999999
+          - 0.999999999999999
+          - 0.9999999999999999
+          - 0.99999999999999999
+
+gauss_combined_zoomed_lin:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussCombined_direct
+      GaussMeanMul: 1.0
+      GaussMeanAdd: 0.0
+  grid:
+    noise_settings.layer_wise:
+      FirstMulThenAdd:
+        type: choice
+        options:
+          - True
+          - False
+      GaussStdMul:
+        type: uniform
+        min: 0.1
+        max: 2.5
+        num: 25
+      GaussStdAdd:
+        type: uniform
+        min: 0.1
+        max: 2.5
+        num: 25

@@ -1,0 +1,124 @@
+#### SEML and SLURM config
+
+seml:
+  executable: main.py
+  name: GSC2_CNN_BN_layer_wise_noise
+  output_dir: logs
+  project_root_dir: ../..
+
+slurm:
+  sbatch_options:
+    begin: now       # dummy parameter
+
+
+#### Experiment config
+
+fixed:
+  general:
+    num_epochs: 150
+  optimizer:
+    optimizer_type: Adam
+    lr_scheduler: CosineAnnealingLR
+    lr: 0.0005
+  data:
+    dataset: GSC2_TF
+    batch_size: 512
+  model:
+    model_class: CNN_HE
+    criterion: CrossEntropyLoss
+    weight_criterion: True
+    CNN_HE:
+      conf_name: CNN-S-BN
+  noise_settings.default.noise_type: NoNoise
+
+grid:
+  general.repeat_number:
+    type: range
+    min: 0
+    max: 3
+    step: 1
+  noise_settings.layer_wise:
+    layer_index:
+      type: range
+      min: 0
+      max: 11
+      step: 1
+    enable_in_training:
+      type: choice
+      options:
+        - 1
+        - 0
+
+gauss_combined:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussCombined
+      GaussMeanMul: 1.0
+      GaussMeanAdd: 0.0
+      FirstMulThenAdd: True
+  grid:
+    noise_settings.layer_wise:
+      StdAmplitude:
+        type: loguniform
+        min: 1e-2
+        max: 1e+10
+        num: 25
+      StdRatio:
+        type: choice
+        options:
+          - 0.01
+          - 0.1
+          - 0.5
+          - 0.9
+          - 0.99
+
+gauss_add_clamped:
+  fixed:
+    general.weight_clamping:
+      min: -1
+      max: 1
+    noise_settings.layer_wise:
+      noise_type: GaussAdd
+      GaussMean: 0.0
+  grid:
+    noise_settings.layer_wise.GaussStd:
+      type: loguniform
+      min: 1e-2
+      max: 1e+10
+      num: 49
+
+gauss_add:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussAdd
+      GaussMean: 0.0
+  grid:
+    noise_settings.layer_wise.GaussStd:
+      type: loguniform
+      min: 1e-2
+      max: 1e+10
+      num: 49
+
+gauss_mul:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussMul
+      GaussMean: 1.0
+  grid:
+    noise_settings.layer_wise.GaussStd:
+      type: uniform
+      min: 0.
+      max: 2.0
+      num: 21
+
+gauss_mul_log_space:
+  fixed:
+    noise_settings.layer_wise:
+      noise_type: GaussMul
+      GaussMean: 1.0
+  grid:
+    noise_settings.layer_wise.GaussStd:
+      type: loguniform
+      min: 1e-0
+      max: 1e+10
+      num: 41

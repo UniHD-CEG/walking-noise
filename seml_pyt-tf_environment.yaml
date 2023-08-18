@@ -1,0 +1,30 @@
+name: seml_pyt-tf
+channels:
+  - default
+  - pytorch
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.9
+  - neptune-client
+  - pytorch=1.11
+  - torchvision=0.12
+  - torchaudio=0.11
+  - cudatoolkit=11.3
+  - numpy
+  - scipy
+  - matplotlib
+  - torchmetrics
+  - jupyter
+  - pip
+  - cudnn=8.2.1
+  - scipy
+  - ffmpeg
+  - pip:
+      - tensorflow
+      - tensorflow-datasets
+      - python_speech_features
+      - pydub
+      - seml
+      - neptune-contrib
+      - brevitas
